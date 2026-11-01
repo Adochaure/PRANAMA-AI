@@ -3,6 +3,7 @@ import { AnalyzeRequest, type StreamEvent } from "@/lib/schemas";
 import { runAnalysis } from "@/lib/pipeline/run";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 export const maxDuration = 300;
 
 const RATE_LIMIT_WINDOW_MS = 60_000;

@@ -4,6 +4,7 @@ import { MODELS } from "@/lib/models";
 import { buildSourceSuggestionsPrompt, SOURCE_SUGGESTIONS_SYSTEM } from "@/lib/prompts";
 import { SuggestRequest, SuggestedSourcesOutput } from "@/lib/schemas";
 import { SAMPLE_SUGGESTED_SOURCES } from "@/lib/data";
+import { makeAspects } from "@/lib/pipeline/aspects";
 
 const MAX_REQUEST_BYTES = 32 * 1024;
 const RATE_LIMIT_WINDOW_MS = 60_000;
@@ -51,11 +52,12 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const aspects = parsed.data.aspects ?? await makeAspects(parsed.data.question, new Date().toISOString().slice(0, 10));
     const suggestions = await callJson({
       model: MODELS.fast,
       effort: "low",
       system: SOURCE_SUGGESTIONS_SYSTEM,
-      user: buildSourceSuggestionsPrompt(parsed.data.question, parsed.data.aspects),
+      user: buildSourceSuggestionsPrompt(parsed.data.question, aspects),
       schema: SuggestedSourcesOutput,
       name: "source_suggestions",
     });

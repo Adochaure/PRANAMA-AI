@@ -1,8 +1,11 @@
-import { PDFParse } from "pdf-parse";
-
 export const MAX_PDF_PAGES = 100;
 
 export async function extractPdf(buffer: Buffer) {
+  const { DOMMatrix } = await import("@napi-rs/canvas");
+  if (typeof globalThis.DOMMatrix === "undefined") {
+    Object.assign(globalThis, { DOMMatrix });
+  }
+  const { PDFParse } = await import("pdf-parse");
   const parser = new PDFParse({ data: buffer, isEvalSupported: false, useWorkerFetch: false });
   try {
     const info = await parser.getInfo();

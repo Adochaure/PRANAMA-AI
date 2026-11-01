@@ -240,9 +240,10 @@ export default function CenterPanel({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: activeQ, aspects: result?.aspects }),
       });
-      const data = await res.json();
-      if (data.sources) {
-        setSuggestions(data.sources);
+      const data = await res.json() as { sources?: SuggestedSource[]; suggestions?: SuggestedSource[]; error?: string; note?: string };
+      const suggestedSources = data.sources ?? data.suggestions;
+      if (suggestedSources) {
+        setSuggestions(suggestedSources);
         if (data.note) setSuggestNote(data.note);
       } else if (data.error) {
         setStatus(data.error);
