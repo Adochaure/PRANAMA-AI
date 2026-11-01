@@ -1,15 +1,11 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 export default function GoogleSignInButton({ next, initialMessage }: { next: string; initialMessage: string }) {
   const [message, setMessage] = useState(initialMessage);
   const [busy, setBusy] = useState(false);
-  const [emailMode, setEmailMode] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isSignUp, setIsSignUp] = useState(false);
 
   async function continueWithGoogle() {
     setBusy(true);
@@ -28,84 +24,6 @@ export default function GoogleSignInButton({ next, initialMessage }: { next: str
     }
   }
 
-  async function handleEmailAuth(event: FormEvent) {
-    event.preventDefault();
-    if (!email.trim() || !password.trim()) {
-      setMessage("Please enter both email and password.");
-      return;
-    }
-    setBusy(true);
-    setMessage("");
-    try {
-      const supabase = createClient();
-      if (isSignUp) {
-        const { data, error } = await supabase.auth.signUp({
-          email: email.trim(),
-          password: password.trim(),
-        });
-        if (error) throw error;
-        if (data.session) {
-          window.location.assign(next);
-          return;
-        }
-        setMessage("Account created. Check your email to confirm or try signing in.");
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password: password.trim(),
-        });
-        if (error) throw error;
-        window.location.assign(next);
-      }
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Authentication failed.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function continueAsGuest() {
-    setBusy(true);
-    setMessage("");
-    try {
-      const supabase = createClient();
-      const demoEmail = "demo@pramana.ai";
-      const demoPassword = "DemoUser2026!";
-      
-      const { error: signInErr } = await supabase.auth.signInWithPassword({
-        email: demoEmail,
-        password: demoPassword,
-      });
-
-      if (!signInErr) {
-        window.location.assign(next);
-        return;
-      }
-
-      const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
-        email: demoEmail,
-        password: demoPassword,
-      });
-
-      if (!signUpErr && signUpData.session) {
-        window.location.assign(next);
-        return;
-      }
-
-      const { error: anonErr } = await supabase.auth.signInAnonymously();
-      if (!anonErr) {
-        window.location.assign(next);
-        return;
-      }
-
-      throw signInErr || signUpErr || anonErr;
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Could not sign in as guest.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
   return (
     <>
       <button className="google-signin-button" type="button" onClick={continueWithGoogle} disabled={busy}>
@@ -119,86 +37,6 @@ export default function GoogleSignInButton({ next, initialMessage }: { next: str
           {busy ? "Connecting..." : "Continue with Google"}
         </span>
       </button>
-
-      <div className="auth-divider"><span>or with email</span></div>
-
-      {!emailMode ? (
-        <div style={{ display: "grid", gap: "8px", marginTop: "12px" }}>
-          <button
-            type="button"
-            onClick={() => setEmailMode(true)}
-            style={{
-              height: "40px",
-              border: "1px solid #dfe2e9",
-              borderRadius: "8px",
-              background: "#fff",
-              color: "#374151",
-              fontSize: "12px",
-              fontWeight: 500,
-              cursor: "pointer",
-            }}
-          >
-            Sign in with email & password
-          </button>
-          <button
-            type="button"
-            onClick={continueAsGuest}
-            disabled={busy}
-            style={{
-              height: "36px",
-              border: "1px dashed #c3cae6",
-              borderRadius: "8px",
-              background: "#f8f9fd",
-              color: "#001a9c",
-              fontSize: "11px",
-              fontWeight: 500,
-              cursor: "pointer",
-            }}
-          >
-            Explore workspace as Guest (instant demo)
-          </button>
-        </div>
-      ) : (
-        <form onSubmit={handleEmailAuth}>
-          <label htmlFor="auth-email">Email</label>
-          <input
-            id="auth-email"
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <label htmlFor="auth-password">Password</label>
-          <input
-            id="auth-password"
-            type="password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <button type="submit" disabled={busy}>
-            {busy ? "Processing..." : isSignUp ? "Create account" : "Sign in"}
-          </button>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", marginTop: "6px" }}>
-            <button
-              type="button"
-              onClick={() => setIsSignUp(!isSignUp)}
-              style={{ background: "none", border: 0, color: "var(--blue)", cursor: "pointer", padding: 0 }}
-            >
-              {isSignUp ? "Have an account? Sign in" : "Need an account? Sign up"}
-            </button>
-            <button
-              type="button"
-              onClick={() => setEmailMode(false)}
-              style={{ background: "none", border: 0, color: "#6b7280", cursor: "pointer", padding: 0 }}
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      )}
 
       <div className="auth-message" role="status" aria-live="polite">{message}</div>
     </>
