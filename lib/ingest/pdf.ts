@@ -1,8 +1,10 @@
-import { PDFParse } from "pdf-parse";
-
 export const MAX_PDF_PAGES = 100;
 
 export async function extractPdf(buffer: Buffer) {
+  // pdf-parse loads pdfjs-dist, which expects browser canvas globals such as
+  // DOMMatrix. Keep that package out of the route's startup import graph so
+  // text and URL analyses can run in serverless runtimes without those globals.
+  const { PDFParse } = await import("pdf-parse");
   const parser = new PDFParse({ data: buffer, isEvalSupported: false, useWorkerFetch: false });
   try {
     const info = await parser.getInfo();

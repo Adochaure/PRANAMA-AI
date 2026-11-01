@@ -3,7 +3,6 @@ import { callJson } from "@/lib/llm";
 import { MODELS } from "@/lib/models";
 import { buildSourceSuggestionsPrompt, SOURCE_SUGGESTIONS_SYSTEM } from "@/lib/prompts";
 import { SuggestRequest, SuggestedSourcesOutput } from "@/lib/schemas";
-import { SAMPLE_SUGGESTED_SOURCES } from "@/lib/data";
 
 const MAX_REQUEST_BYTES = 32 * 1024;
 const RATE_LIMIT_WINDOW_MS = 60_000;
@@ -44,10 +43,7 @@ export async function POST(request: NextRequest) {
   if (!parsed.success) return Response.json({ error: parsed.error.issues[0]?.message ?? "The request is invalid." }, { status: 400 });
 
   if (!process.env.GROQ_API_KEY) {
-    return Response.json({
-      sources: SAMPLE_SUGGESTED_SOURCES,
-      note: "Showing sample authoritative sources (add GROQ_API_KEY in .env.local for live query generation).",
-    }, { headers: { "Cache-Control": "no-store" } });
+    return Response.json({ error: "Source suggestions are unavailable because GROQ_API_KEY is not configured." }, { status: 503 });
   }
 
   try {
@@ -60,10 +56,8 @@ export async function POST(request: NextRequest) {
       name: "source_suggestions",
     });
     return Response.json(suggestions, { headers: { "Cache-Control": "no-store" } });
-  } catch {
-    return Response.json({
-      sources: SAMPLE_SUGGESTED_SOURCES,
-      note: "Fallback sample sources shown.",
-    }, { headers: { "Cache-Control": "no-store" } });
+  } catch (error) {
+    console.error("Source suggestion generation failed:", error);
+    return Response.json({ error: "Could not generate source suggestions. Please try again." }, { status: 502 });
   }
 }

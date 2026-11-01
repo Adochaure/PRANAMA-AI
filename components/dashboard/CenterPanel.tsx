@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type ClipboardEvent, type FormEvent, type KeyboardEvent } from "react";
 import {
   AlertTriangle,
   ArrowDown,
@@ -81,6 +81,10 @@ function sourceHost(url: string) {
   }
 }
 
+function extractUrls(value: string) {
+  return value.match(/(?:https?:\/\/|www\.)[^\s<>]+|\b[a-z0-9-]+(?:\.[a-z0-9-]+)+(?:\/[^\s<>]*)?/gi) ?? [];
+}
+
 export default function CenterPanel({
   chatTitle,
   resetKey,
@@ -114,6 +118,7 @@ export default function CenterPanel({
 
   const fileRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const autoSuggestedQuestionRef = useRef("");
 
   const gaps = (result?.findings ?? []).filter((f) => f.type === "gap");
   const conflicts = (result?.findings ?? []).filter((f) => f.type === "conflict");
@@ -156,6 +161,35 @@ export default function CenterPanel({
     setSources((curr) => [...curr, item]);
     setStatus("Source added.");
     return true;
+  }
+
+  function handleQuestionPaste(event: ClipboardEvent<HTMLTextAreaElement>) {
+    const pasted = event.clipboardData.getData("text");
+    const matches = extractUrls(pasted);
+    if (!matches.length) return;
+
+    event.preventDefault();
+    const urls = matches
+      .map((match) => normalizeUrl(match.replace(/[),.;!?]+$/, "")))
+      .filter((url) => {
+        try { return /^https?:$/.test(new URL(url).protocol); }
+        catch { return false; }
+      });
+    const additions = urls
+      .filter((url, index) => urls.indexOf(url) === index && !sources.some((source) => source.url === url))
+      .slice(0, Math.max(0, MAX_SOURCES - sources.length))
+      .map((url) => ({ id: crypto.randomUUID(), kind: "url" as const, title: sourceHost(url), url }));
+
+    if (additions.length) setSources((current) => [...current, ...additions]);
+    const remainingText = pasted.replace(/(?:https?:\/\/|www\.)[^\s<>]+|\b[a-z0-9-]+(?:\.[a-z0-9-]+)+(?:\/[^\s<>]*)?/gi, " ").replace(/\s+/g, " ").trim();
+    if (remainingText) {
+      const target = event.currentTarget;
+      const before = question.slice(0, target.selectionStart);
+      const after = question.slice(target.selectionEnd);
+      setQuestion(`${before}${before && !/\s$/.test(before) ? " " : ""}${remainingText}${after && !/^\s/.test(after) ? " " : ""}${after}`);
+    }
+    if (additions.length) setStatus(`${additions.length} pasted link${additions.length === 1 ? "" : "s"} added as sources.`);
+    else if (urls.length) setStatus(sources.length >= MAX_SOURCES ? "You can add up to 8 sources." : "Those links are already attached.");
   }
 
   async function handleFiles(files: FileList | File[]) {
@@ -229,30 +263,38 @@ export default function CenterPanel({
     }
   }
 
-  async function fetchSuggestions() {
+  async function fetchSuggestions(questionOverride?: string, aspectsOverride?: AnalysisResult["aspects"]) {
     setSuggestOpen(true);
     setSuggestLoading(true);
     setSuggestNote("");
     try {
-      const activeQ = question.trim() || result?.question || "Scholarship eligibility and renewal requirements";
+      const activeQ = questionOverride?.trim() || question.trim() || result?.question || "Scholarship eligibility and renewal requirements";
       const res = await fetch("/api/suggest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: activeQ, aspects: result?.aspects }),
+        body: JSON.stringify({ question: activeQ, aspects: aspectsOverride ?? result?.aspects }),
       });
-      const data = await res.json();
-      if (data.sources) {
-        setSuggestions(data.sources);
+      const data = await res.json() as { suggestions?: SuggestedSource[]; error?: string; note?: string };
+      if (!res.ok) throw new Error(data.error ?? "Could not load suggestions.");
+      if (data.suggestions) {
+        setSuggestions(data.suggestions);
         if (data.note) setSuggestNote(data.note);
-      } else if (data.error) {
-        setStatus(data.error);
+      } else {
+        throw new Error("No suggestions were returned. Please try again.");
       }
-    } catch {
-      setStatus("Could not load suggestions.");
+    } catch (error) {
+      setSuggestions([]);
+      setStatus(error instanceof Error ? error.message : "Could not load suggestions.");
     } finally {
       setSuggestLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (!result?.question || autoSuggestedQuestionRef.current === result.question) return;
+    autoSuggestedQuestionRef.current = result.question;
+    void fetchSuggestions(result.question, result.aspects);
+  }, [result?.question]);
 
   function addSuggestedSource(s: SuggestedSource) {
     addSource({
@@ -279,6 +321,10 @@ export default function CenterPanel({
     if (loading) return;
 
     setStatus("");
+    if (autoSuggestedQuestionRef.current !== q) {
+      autoSuggestedQuestionRef.current = q;
+      void fetchSuggestions(q, result?.aspects);
+    }
     await onRunAnalysis(q, sources, false);
   }
 
@@ -751,6 +797,7 @@ export default function CenterPanel({
             ref={textareaRef}
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
+            onPaste={handleQuestionPaste}
             onKeyDown={handleKey}
             rows={1}
             placeholder={result ? "Ask a follow-up or add sources to update analysis" : "Ask a question, then add the sources you're relying on"}

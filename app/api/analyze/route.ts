@@ -63,6 +63,14 @@ export async function POST(request: NextRequest) {
     let canceled = false;
     const stream = new ReadableStream<Uint8Array>({
       async start(controller) {
+        // Immediately commit HTTP 200 headers by sending an SSE comment
+        try {
+          controller.enqueue(encoder.encode(": connected\n\n"));
+        } catch {
+          canceled = true;
+          return;
+        }
+
         const send = (event: StreamEvent) => {
           if (canceled) return;
           try {
@@ -99,14 +107,12 @@ export async function POST(request: NextRequest) {
       headers: {
         "Content-Type": "text/event-stream; charset=utf-8",
         "Cache-Control": "no-cache, no-transform",
-        Connection: "keep-alive",
-        "X-Accel-Buffering": "no",
       },
     });
   } catch (err) {
     console.error("Unhandled error in /api/analyze:", err);
     return errorResponse(
-      err instanceof Error ? err.message : "Internal server error during analysis.",
+      err instanceof Error ? err.message : "Internal error starting analysis.",
       500
     );
   }

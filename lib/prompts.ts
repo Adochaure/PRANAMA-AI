@@ -8,9 +8,9 @@ export const SOURCE_SUGGESTIONS_SYSTEM = `You help people find public sources th
 - Keep each suggestion focused on one of the supplied aspects and do not include private or login-only pages.
 Return JSON only, matching the supplied schema.`;
 
-export function buildSourceSuggestionsPrompt(question: string, aspects: Aspect[]) {
-  const compact = aspects.map(({ label, question: aspectQuestion, keywords }) => ({ label, question: aspectQuestion, keywords }));
-  return `Question: ${question}\nChecks to verify: ${JSON.stringify(compact)}`;
+export function buildSourceSuggestionsPrompt(question: string, aspects?: Aspect[]) {
+  const compact = (aspects ?? []).map(({ label, question: aspectQuestion, keywords }) => ({ label, question: aspectQuestion, keywords }));
+  return `Question: ${question}\nChecks to verify: ${JSON.stringify(compact)}\nWhen no checks are provided, infer useful verification topics from the question.`;
 }
 
 export const ASPECTS_SYSTEM = `You are a research-methods assistant. Given a user's question, list the distinct pieces of information a person needs to answer it completely and act on it safely. Include items people commonly forget: renewal, exceptions, fees, deadlines, the official application route, and contact details. You are not given any source text; this list defines what complete means.

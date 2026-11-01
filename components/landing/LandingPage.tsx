@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type KeyboardEvent } from "react";
 import { ArrowUp, ChevronDown, ClipboardPaste, FileText, LayoutDashboard, Link2, List, LogOut, Plus, Search, X } from "lucide-react";
 import { AnalysisConversation } from "@/components/conversation/AnalysisConversation";
-import { StreamEvent as StreamEventSchema, type AnalysisResult, type StreamEvent } from "@/lib/schemas";
+import { StreamEvent as StreamEventSchema, type AnalysisResult, type StreamEvent, type SuggestedSource } from "@/lib/schemas";
 import { createClient } from "@/lib/supabase/client";
 
 type LocalSource = { id: string; kind: "url" | "file" | "text"; name: string; url?: string; text?: string; file?: File };
@@ -107,12 +107,17 @@ export default function LandingPage() {
   const [analysisStatus, setAnalysisStatus] = useState("");
   const [analysisError, setAnalysisError] = useState("");
   const [isSample, setIsSample] = useState(false);
+  const [suggestions, setSuggestions] = useState<SuggestedSource[]>([]);
+  const [suggestionsOpen, setSuggestionsOpen] = useState(false);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+  const [suggestionsError, setSuggestionsError] = useState("");
   const [retryAvailable, setRetryAvailable] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const composerDockRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const retryInputRef = useRef<{ question: string; sources: LocalSource[] } | null>(null);
+  const autoSuggestedQuestionRef = useRef("");
 
   function resizeQuestion() {
     const textarea = textareaRef.current;
@@ -124,6 +129,13 @@ export default function LandingPage() {
   }
 
   useEffect(() => { requestAnimationFrame(resizeQuestion); }, [question, conversation]);
+
+  useEffect(() => {
+    const resultQuestion = analysisResult?.question;
+    if (!resultQuestion || autoSuggestedQuestionRef.current === resultQuestion) return;
+    autoSuggestedQuestionRef.current = resultQuestion;
+    void fetchSuggestions(resultQuestion, analysisResult?.aspects);
+  }, [analysisResult?.question]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -374,9 +386,40 @@ export default function LandingPage() {
     }, 100);
   }
 
-  function showSourceSuggestionMessage() {
-    setStatus("Automatic source discovery is not connected yet. Add an official URL or upload a source to continue.");
+  async function fetchSuggestions(questionOverride?: string, aspectsOverride?: AnalysisResult["aspects"]) {
+    const activeQuestion = questionOverride?.trim() || question.trim() || submittedQuestion.trim();
+    if (activeQuestion.length < 5) {
+      setStatus("Enter your question first, then ask for source suggestions.");
+      textareaRef.current?.focus();
+      return;
+    }
+    autoSuggestedQuestionRef.current = activeQuestion;
+    setSuggestionsOpen(true);
+    setSuggestionsLoading(true);
+    setSuggestionsError("");
+    setSuggestions([]);
+    setStatus("");
+    try {
+      const response = await fetch("/api/suggest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: activeQuestion, aspects: aspectsOverride ?? analysisResult?.aspects }),
+      });
+      const data = await response.json() as { suggestions?: SuggestedSource[]; error?: string };
+      if (!response.ok) throw new Error(data.error ?? "Could not generate source suggestions.");
+      if (!data.suggestions?.length) throw new Error("No sources were suggested. Please try again.");
+      setSuggestions(data.suggestions);
+    } catch (error) {
+      setSuggestionsError(error instanceof Error ? error.message : "Could not generate source suggestions.");
+    } finally {
+      setSuggestionsLoading(false);
+    }
     composerDockRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }
+
+  function addSuggestedSource(suggestion: SuggestedSource) {
+    const added = addSource({ id: crypto.randomUUID(), kind: "url", name: sourceName(suggestion.url), url: suggestion.url });
+    if (added) setSuggestions((current) => current.filter((item) => item.url !== suggestion.url));
   }
 
   const menu = <>
@@ -444,8 +487,18 @@ export default function LandingPage() {
             <div className="status" role="status" aria-live="polite">{status}</div>
             <div className="option-row">
               <div className="popover-anchor"><button className="text-action" type="button" onClick={() => { setLinkOpen((open) => !open); setPasteOpen(false); }}><Link2 size={17} />Add link</button>{linkOpen && <form className="link-popover" onSubmit={submitLink}><label htmlFor="source-url">Source URL</label><div className="link-entry"><input id="source-url" type="url" placeholder="https://example.gov.in/page" value={linkValue} onChange={(event) => setLinkValue(event.target.value)} /><button type="submit">Add source</button></div></form>}</div>
-              <button className="text-action" type="button" onClick={() => fileRef.current?.click()}><FileText size={17} />Upload files</button><button className="text-action" type="button" onClick={() => { setPasteOpen(true); setLinkOpen(false); }}><ClipboardPaste size={17} />Paste text</button><button className="text-action" type="button" onClick={showSourceSuggestionMessage}><Search size={17} />Suggest sources</button>
+              <button className="text-action" type="button" onClick={() => fileRef.current?.click()}><FileText size={17} />Upload files</button><button className="text-action" type="button" onClick={() => { setPasteOpen(true); setLinkOpen(false); }}><ClipboardPaste size={17} />Paste text</button><button className="text-action" type="button" onClick={() => void fetchSuggestions()} disabled={suggestionsLoading}><Search size={17} />{suggestionsLoading ? "Finding sources…" : "Suggest sources"}</button>
             </div>
+            {suggestionsOpen && <section className="source-suggestions" aria-live="polite" aria-label="Suggested sources">
+              <div className="source-suggestions-heading"><strong>Suggested places to check</strong><button type="button" onClick={() => setSuggestionsOpen(false)} aria-label="Close suggestions"><X size={15} /></button></div>
+              {suggestionsLoading && <p>Finding relevant public sources…</p>}
+              {suggestionsError && <p role="alert">{suggestionsError}</p>}
+              {suggestions.map((suggestion) => <article className="source-suggestion" key={suggestion.url}>
+                <div><strong>{suggestion.title}</strong><span>{suggestion.domain}{suggestion.officialGuess ? " · likely official" : " · verify publisher"}</span><p>{suggestion.snippet}</p></div>
+                <button type="button" onClick={() => addSuggestedSource(suggestion)}>Add</button>
+              </article>)}
+              <small>Suggestions are unverified leads. Confirm the publisher and page before relying on them.</small>
+            </section>}
             <div className="examples"><button className="sample-capsule" type="button" onClick={() => void runSample()}>Try the sample scholarship</button><button className="example-capsule" type="button" onClick={() => { setQuestion("What should I verify on this admission page?"); textareaRef.current?.focus(); }}>Check an admission page</button><button className="example-capsule" type="button" onClick={() => { setQuestion("What should I verify before applying for this government scheme?"); textareaRef.current?.focus(); }}>Review a government scheme</button></div>
             <p className="note">Findings are potential gaps based on your sources, not guaranteed facts.</p>
           </div>
@@ -459,13 +512,23 @@ export default function LandingPage() {
           </div>
         </section>
       </> : <>
-        <AnalysisConversation question={submittedQuestion} sources={submittedSources} result={analysisResult} loading={analysisLoading} statusLine={analysisStatus} error={analysisError} isSample={isSample} canRetry={retryAvailable} onRetry={retryLastAnalysis} onAddSource={openAddSource} onSuggestSources={showSourceSuggestionMessage} />
+        <AnalysisConversation question={submittedQuestion} sources={submittedSources} result={analysisResult} loading={analysisLoading} statusLine={analysisStatus} error={analysisError} isSample={isSample} canRetry={retryAvailable} onRetry={retryLastAnalysis} onAddSource={openAddSource} onSuggestSources={() => void fetchSuggestions()} />
+        {suggestionsOpen && <section className="source-suggestions conversation-suggestions" aria-live="polite" aria-label="Suggested sources">
+          <div className="source-suggestions-heading"><strong>Suggested places to check</strong><button type="button" onClick={() => setSuggestionsOpen(false)} aria-label="Close suggestions"><X size={15} /></button></div>
+          {suggestionsLoading && <p>Finding relevant public sources…</p>}
+          {suggestionsError && <p role="alert">{suggestionsError}</p>}
+          {suggestions.map((suggestion) => <article className="source-suggestion" key={suggestion.url}>
+            <div><strong>{suggestion.title}</strong><span>{suggestion.domain}{suggestion.officialGuess ? " · likely official" : " · verify publisher"}</span><p>{suggestion.snippet}</p></div>
+            <button type="button" onClick={() => addSuggestedSource(suggestion)}>Add</button>
+          </article>)}
+          <small>Suggestions are unverified leads. Confirm the publisher and page before relying on them.</small>
+        </section>}
         <div className="landing-chat-dock" ref={composerDockRef}>
           <div className="landing-chat-dock-inner">
             <form className="composer" onSubmit={submit}>
               <div className={`source-strip ${sources.length ? "has-items" : ""}`} aria-label="Sources for the next analysis">{sources.map((source) => <div className="source-chip" key={source.id} title={source.name}><span aria-hidden="true">{source.kind === "url" ? <Link2 size={15} /> : source.kind === "text" ? <ClipboardPaste size={15} /> : <FileText size={15} />}</span><span>{source.name}</span><button type="button" aria-label={`Remove ${source.name}`} onClick={() => setSources((all) => all.filter((item) => item.id !== source.id))}><X size={14} /></button></div>)}</div>
               {linkOpen && <div className="mobile-link-popover"><label htmlFor="conversation-source-url">Source URL</label><div className="link-entry"><input id="conversation-source-url" type="url" placeholder="https://example.gov.in/page" value={linkValue} onChange={(event) => setLinkValue(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addLink(); } }} /><button type="button" onClick={addLink}>Add source</button></div></div>}
-              <textarea ref={textareaRef} value={question} onChange={(event) => { setQuestion(event.target.value); requestAnimationFrame(resizeQuestion); }} onKeyDown={onKeyDown} rows={1} placeholder="Ask a follow-up or start a new check with sources" aria-label="Your follow-up question" />
+              <textarea ref={textareaRef} value={question} onChange={(event) => { onQuestionChange(event); requestAnimationFrame(resizeQuestion); }} onKeyDown={onKeyDown} rows={1} placeholder="Ask a follow-up or start a new check with sources" aria-label="Your follow-up question" />
               <div className="composer-footer"><div className="composer-actions"><button type="button" className="add-button upload-trigger" aria-label="Upload source files" title="Upload source files" onClick={() => fileRef.current?.click()}><Plus size={20} /></button><button type="button" className="add-button mobile-source-action" aria-label="Add a link" title="Add a link" onClick={() => { setLinkOpen((open) => !open); setPasteOpen(false); }}><Link2 size={18} /></button><button type="button" className="add-button mobile-source-action" aria-label="Paste source text" title="Paste source text" onClick={() => { setPasteOpen(true); setLinkOpen(false); }}><ClipboardPaste size={18} /></button></div>
                 <input ref={fileRef} className="file-input" type="file" multiple accept={ACCEPTED} onChange={(event) => { if (event.target.files) addFiles(event.target.files); event.target.value = ""; }} />
                 <button className="send-button" type="submit" aria-label="Send question" title="Send question" disabled={analysisLoading}><span className="send-arrow"><ArrowUp size={24} strokeWidth={2.4} /></span></button>

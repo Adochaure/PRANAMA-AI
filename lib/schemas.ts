@@ -166,7 +166,7 @@ export const SuggestedSourcesOutput = z.object({ suggestions: z.array(SuggestedS
 
 export const SuggestRequest = z.object({
   question: z.string().trim().min(5).max(500),
-  aspects: z.array(Aspect).min(6).max(10),
+  aspects: z.array(Aspect).min(6).max(10).optional(),
 });
 
 export const StreamEvent = z.discriminatedUnion("type", [
