@@ -555,7 +555,7 @@ export default function CenterPanel({
               <button type="button" onClick={() => setLinkOpen(true)}>
                 <Plus size={15} />Add a source
               </button>
-              <button type="button" onClick={fetchSuggestions}>
+              <button type="button" onClick={() => fetchSuggestions()}>
                 <Search size={15} />Suggest sources
               </button>
               <button type="button" onClick={copyChecklist}>
@@ -785,7 +785,7 @@ export default function CenterPanel({
               <button
                 type="button"
                 className="tool-text-button"
-                onClick={fetchSuggestions}
+                onClick={() => fetchSuggestions()}
               >
                 <Search size={15} /><span>Suggest</span>
               </button>
