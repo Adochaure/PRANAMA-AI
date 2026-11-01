@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import GoogleSignInButton from "./GoogleSignInButton";
 
+export const dynamic = "force-dynamic";
+
 type SearchParams = Promise<{ error?: string; next?: string }>;
 
 export default function LoginPage({ searchParams }: { searchParams: SearchParams }) {
