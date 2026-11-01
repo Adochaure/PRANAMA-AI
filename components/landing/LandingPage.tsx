@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type KeyboardEvent } from "react";
 import { ArrowUp, ChevronDown, ClipboardPaste, FileText, LayoutDashboard, Link2, List, LogOut, Plus, Search, X } from "lucide-react";
 import { AnalysisConversation } from "@/components/conversation/AnalysisConversation";
-import { AnalysisResult as AnalysisResultSchema, StreamEvent as StreamEventSchema, type AnalysisResult, type StreamEvent } from "@/lib/schemas";
+import { StreamEvent as StreamEventSchema, type AnalysisResult, type StreamEvent } from "@/lib/schemas";
 import { createClient } from "@/lib/supabase/client";
 
 type LocalSource = { id: string; kind: "url" | "file" | "text"; name: string; url?: string; text?: string; file?: File };
@@ -13,12 +13,6 @@ const MAX_SOURCES = 8;
 const MAX_FILE_BYTES = 1_800_000;
 const ACCEPTED = ".pdf,.txt,.md,.html";
 const DEMO_QUESTION = "What are the eligibility and application requirements for the Surya Scholars Grant?";
-const SAMPLE_SOURCES = [
-  { id: "sample-official", kind: "url" as const, name: "Surya Scholars Grant — Official Notice" },
-  { id: "sample-blog", kind: "url" as const, name: "How to apply for the Surya Scholars Grant" },
-  { id: "sample-old", kind: "url" as const, name: "Surya Scholars Grant — Archived Notice" },
-  { id: "sample-aggregator", kind: "url" as const, name: "Surya Scholars Grant summary" },
-];
 
 function sourceName(url: string) {
   try { return new URL(url).hostname.replace(/^www\./, ""); }
@@ -251,46 +245,63 @@ export default function LandingPage() {
   }
 
   async function runSample() {
-    if (analysisLoading) return;
-    const controller = new AbortController();
-    abortRef.current?.abort();
-    abortRef.current = controller;
-    setConversation(true);
-    setSubmittedQuestion(DEMO_QUESTION);
-    setSubmittedSources(SAMPLE_SOURCES);
-    setAnalysisResult(null);
-    setAnalysisError("");
-    setAnalysisStatus("Loading the prepared sample analysis");
-    setAnalysisLoading(true);
-    setIsSample(true);
-    retryInputRef.current = null;
-    setRetryAvailable(false);
-    setQuestion("");
-    setSources([]);
-    setStatus("");
+    setStatus("Opening sample scholarship analysis in workspace...");
     try {
-      const response = await fetch("/api/sample", { signal: controller.signal });
-      if (!response.ok) throw new Error("The sample analysis could not be loaded.");
-      const result = AnalysisResultSchema.parse(await response.json());
-      setAnalysisResult(result);
-      setSubmittedQuestion(result.question);
-      setSubmittedSources(result.sources.map((source) => ({ id: source.id, kind: source.kind === "text" ? "text" : source.kind === "url" ? "url" : "file", name: source.title })));
-      setAnalysisStatus("Sample analysis ready");
-    } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") return;
-      setAnalysisError(error instanceof Error ? error.message : "The sample analysis could not be loaded.");
-    } finally {
-      if (!controller.signal.aborted) setAnalysisLoading(false);
+      const pendingData = {
+        question: DEMO_QUESTION,
+        sources: [
+          { id: "official", kind: "url", title: "Surya Scholars Grant — Official Notice", url: "https://scholarships.example.gov.in/surya/notice-2026" },
+          { id: "blog", kind: "url", title: "How to apply for the Surya Scholars Grant", url: "https://study-notes.example/blog/surya-grant" },
+          { id: "old-notice", kind: "url", title: "Surya Scholars Grant — Archived Notice", url: "https://archive.example.gov.in/surya/notice-2023" },
+          { id: "aggregator", kind: "url", title: "Surya Scholars Grant summary", url: "https://grants.example/directory/surya" },
+        ],
+        isSample: true,
+      };
+      sessionStorage.setItem("pramana_pending_analysis", JSON.stringify(pendingData));
+    } catch {}
+
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      window.location.assign("/dashboard");
+    } else {
+      window.location.assign("/login?next=/dashboard");
     }
   }
 
-  function submit(event?: FormEvent) {
+  async function submit(event?: FormEvent) {
     event?.preventDefault();
     const prompt = question.trim();
-    if (prompt.length < 5) { setStatus("Add a question with at least 5 characters."); textareaRef.current?.focus(); return; }
-    if (!sources.length) { setStatus("Add at least one source before starting the analysis."); return; }
-    if (analysisLoading) return;
-    void runLiveAnalysis(prompt, sources);
+    if (prompt.length < 5) {
+      setStatus("Add a question with at least 5 characters.");
+      textareaRef.current?.focus();
+      return;
+    }
+    if (!sources.length) {
+      setStatus("Add at least one source before starting the analysis.");
+      return;
+    }
+
+    setStatus("Preparing your research...");
+    try {
+      const requestSources = await makeRequestSources(sources);
+      const pendingData = {
+        question: prompt,
+        sources: requestSources,
+        isSample: false,
+      };
+      sessionStorage.setItem("pramana_pending_analysis", JSON.stringify(pendingData));
+
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        window.location.assign("/dashboard");
+      } else {
+        window.location.assign("/login?next=/dashboard");
+      }
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Could not prepare sources.");
+    }
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
@@ -393,14 +404,31 @@ export default function LandingPage() {
     <header className="topbar">
       <a className="brand" href="#top" aria-label="Pramana home"><Image src="/pramana_logo.webp" alt="" width={224} height={48} priority className="border rounded-sm" /><span>Pramana</span></a>
       <nav className="desktop-nav" aria-label="Main navigation">{menu}</nav>
-      <button className="mobile-menu-button" aria-label="Open navigation" aria-expanded={mobileOpen} onClick={() => setMobileOpen((open) => !open)}>{mobileOpen ? <X size={19} /> : <List size={19} />}</button>
+      <div className="mobile-top-actions">
+        {profileLabel ? (
+          <div className="nav-account">
+            <button className="nav-profile-trigger" type="button" title={profileLabel} aria-label={`Account menu for ${profileLabel}`} aria-expanded={profileMenuOpen} onClick={() => { setProfileMenuOpen((open) => !open); setSignOutMessage(""); }}>
+              <span className="nav-profile-avatar">{profileLabel.trim().charAt(0).toUpperCase() || "U"}</span><ChevronDown size={14} aria-hidden="true" />
+            </button>
+            {profileMenuOpen && <div className="nav-account-menu" role="menu">
+              <span className="nav-account-email" title={profileLabel}>{profileLabel}</span>
+              <a href="/dashboard" role="menuitem" onClick={() => setProfileMenuOpen(false)}><LayoutDashboard size={15} />Dashboard</a>
+              <button type="button" role="menuitem" onClick={signOutFromLanding} disabled={signingOut}><LogOut size={15} />{signingOut ? "Signing out…" : "Sign out"}</button>
+              {signOutMessage && <span className="nav-account-error" role="status">{signOutMessage}</span>}
+            </div>}
+          </div>
+        ) : <a className="nav-signin-button" href="/login"><span>Sign in</span></a>}
+        <button className="mobile-menu-button" aria-label="Open navigation" aria-expanded={mobileOpen} onClick={() => setMobileOpen((open) => !open)}>{mobileOpen ? <X size={19} /> : <List size={19} />}</button>
+      </div>
       {mobileOpen && <nav className="mobile-nav" aria-label="Mobile navigation">{menu}</nav>}
     </header>
     <main id="top" className={conversation ? "landing-conversation" : "landing-home"}>
       {!conversation ? <>
         <section className="hero" aria-labelledby="hero-title">
           <span className="hero-pillar hero-pillar-left" aria-hidden="true" /><span className="hero-pillar hero-pillar-right" aria-hidden="true" /><span className="hero-pillar hero-pillar-center" aria-hidden="true" />
-          <div className="hero-wordmark" aria-hidden="true">प्रMANA</div>
+          <div className="hero-phone-horse" aria-hidden="true">
+            <Image src="/horse.png" alt="" width={140} height={155} priority />
+          </div>
           <h1 id="hero-title">What do you want to be <span className="hero-title-accent">sure about?</span></h1>
           <p className="subtitle">Add your sources and Pramana shows what&apos;s missing, what conflicts, and what&apos;s outdated.</p>
           <div className="composer-wrap">
@@ -422,7 +450,14 @@ export default function LandingPage() {
             <p className="note">Findings are potential gaps based on your sources, not guaranteed facts.</p>
           </div>
         </section>
-        <section className="how" id="how-it-works" aria-labelledby="how-title"><h2 id="how-title">How it works</h2><div className="how-step"><span>1</span><p><strong>Ask.</strong> Type the question you need answered and add the pages or files you&apos;re relying on.</p></div><div className="how-step"><span>2</span><p><strong>Compare.</strong> Pramana works out what a complete answer needs, then checks each source against it, quote by quote.</p></div><div className="how-step"><span>3</span><p><strong>Verify.</strong> See what&apos;s missing, where sources disagree, what&apos;s outdated, and what to confirm next.</p></div></section>
+        <section className="how" id="how-it-works" aria-labelledby="how-title">
+          <div className="how-heading"><span className="how-eyebrow">A clearer way to check</span><h2 id="how-title">From question to confidence.</h2><p>Pramana traces every answer back to the sources you provide.</p></div>
+          <div className="how-grid">
+            <article className="how-card how-card-ask"><div className="how-card-top"><span className="how-number">01</span><span className="how-tag">START HERE</span></div><div className="how-visual ask-visual" aria-hidden="true"><div className="ask-window"><span className="ask-dot"/><span className="ask-dot"/><span className="ask-dot"/><div className="ask-line">What should I verify?</div><div className="ask-source"><span>↗</span> official.gov.in</div><div className="ask-send">↑</div></div></div><h3>Ask with your sources</h3><p>Write what you need to know. Add official pages, documents, or copied text.</p></article>
+            <article className="how-card how-card-compare"><div className="how-card-top"><span className="how-number">02</span><span className="how-tag">CHECK THE EVIDENCE</span></div><div className="how-visual compare-visual" aria-hidden="true"><div className="compare-sheet"><div className="compare-head"><span>REQUIRED</span><span>YOUR SOURCES</span></div><div className="compare-row"><i/>Eligibility <b>✓</b></div><div className="compare-row"><i/>Deadline <b>✓</b></div><div className="compare-row compare-missing"><i/>Renewal rules <b>?</b></div><div className="compare-scan"/></div></div><h3>Compare, quote by quote</h3><p>Pramana maps what a complete answer needs, then checks each source for supporting evidence.</p></article>
+            <article className="how-card how-card-verify"><div className="how-card-top"><span className="how-number">03</span><span className="how-tag">KNOW WHAT’S NEXT</span></div><div className="how-visual verify-visual" aria-hidden="true"><div className="verify-report"><div className="verify-ring"><span>82<small>%</small></span></div><div className="verify-details"><b>Coverage</b><span><i/> Supported</span><span><i/> Missing detail</span><span><i/> Check the date</span></div><div className="verify-foot">NEXT CHECK <b>Renewal conditions ↗</b></div></div></div><h3>See gaps and next steps</h3><p>Review what is supported, what conflicts or may be out of date, and what to confirm next.</p></article>
+          </div>
+        </section>
       </> : <>
         <AnalysisConversation question={submittedQuestion} sources={submittedSources} result={analysisResult} loading={analysisLoading} statusLine={analysisStatus} error={analysisError} isSample={isSample} canRetry={retryAvailable} onRetry={retryLastAnalysis} onAddSource={openAddSource} onSuggestSources={showSourceSuggestionMessage} />
         <div className="landing-chat-dock" ref={composerDockRef}>
