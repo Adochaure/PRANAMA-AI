@@ -41,16 +41,16 @@ export default function InsightsPanel({
 }: Props) {
   const [copied, setCopied] = useState(false);
 
-  const gaps = result?.findings.filter((f) => f.type === "gap") ?? [];
-  const conflicts = result?.findings.filter((f) => f.type === "conflict") ?? [];
-  const outdated = result?.findings.filter((f) => f.type === "outdated") ?? [];
-  const aspectById = new Map(result?.aspects.map((a) => [a.id, a]) ?? []);
+  const gaps = (result?.findings ?? []).filter((f) => f.type === "gap");
+  const conflicts = (result?.findings ?? []).filter((f) => f.type === "conflict");
+  const outdated = (result?.findings ?? []).filter((f) => f.type === "outdated");
+  const aspectById = new Map((result?.aspects ?? []).map((a) => [a.id, a]));
 
   const completeness = result?.score.completeness ?? 0;
   const darkSpot = result?.score.darkSpot ?? 0;
 
   async function copyChecklist() {
-    if (!result?.checklist.length) return;
+    if (!result?.checklist?.length) return;
     const text = result.checklist
       .map((item) => `${item.rank}. ${item.action}\n   Reason: ${item.reason}\n   Check: ${item.where_to_verify}`)
       .join("\n\n");
@@ -145,7 +145,7 @@ export default function InsightsPanel({
                     : "Significant gaps remain"}
                 </strong>
                 <p>
-                  Sources verify {result.cells.filter((c) => c.status === "covered").length} of {result.aspects.length} required aspects.
+                  Sources verify {(result.cells ?? []).filter((c) => c.status === "covered").length} of {(result.aspects ?? []).length} required aspects.
                 </p>
                 <button type="button" onClick={onOpenCoverageMap}>
                   View coverage map <ChevronRight size={14} />
@@ -193,7 +193,7 @@ export default function InsightsPanel({
           </div>
 
           {/* Ranked Checklist Card */}
-          {result.checklist.length > 0 && (
+          {(result.checklist?.length ?? 0) > 0 && (
             <div className="verify-card">
               <div className="insight-section-title">
                 <div>
@@ -238,7 +238,7 @@ export default function InsightsPanel({
             <div className="insight-section-title">
               <div>
                 <h3>Sources reviewed</h3>
-                <p>{result.sources.length} sources analyzed</p>
+                <p>{(result.sources?.length ?? 0)} sources analyzed</p>
               </div>
               <button
                 type="button"

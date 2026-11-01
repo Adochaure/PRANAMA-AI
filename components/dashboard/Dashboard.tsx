@@ -492,9 +492,9 @@ export default function Dashboard({ userId, userEmail }: { userId: string; userE
               onClick={() => setMobileView("insights")}
             >
               Insights
-              {activeResult && (
+              {Boolean(activeResult?.findings?.length) && (
                 <span className="switch-count">
-                  {activeResult.findings.length}
+                  {activeResult?.findings?.length}
                 </span>
               )}
             </button>
