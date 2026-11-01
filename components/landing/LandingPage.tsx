@@ -404,7 +404,22 @@ export default function LandingPage() {
     <header className="topbar">
       <a className="brand" href="#top" aria-label="Pramana home"><Image src="/pramana_logo.webp" alt="" width={224} height={48} priority className="border rounded-sm" /><span>Pramana</span></a>
       <nav className="desktop-nav" aria-label="Main navigation">{menu}</nav>
-      <button className="mobile-menu-button" aria-label="Open navigation" aria-expanded={mobileOpen} onClick={() => setMobileOpen((open) => !open)}>{mobileOpen ? <X size={19} /> : <List size={19} />}</button>
+      <div className="mobile-top-actions">
+        {profileLabel ? (
+          <div className="nav-account">
+            <button className="nav-profile-trigger" type="button" title={profileLabel} aria-label={`Account menu for ${profileLabel}`} aria-expanded={profileMenuOpen} onClick={() => { setProfileMenuOpen((open) => !open); setSignOutMessage(""); }}>
+              <span className="nav-profile-avatar">{profileLabel.trim().charAt(0).toUpperCase() || "U"}</span><ChevronDown size={14} aria-hidden="true" />
+            </button>
+            {profileMenuOpen && <div className="nav-account-menu" role="menu">
+              <span className="nav-account-email" title={profileLabel}>{profileLabel}</span>
+              <a href="/dashboard" role="menuitem" onClick={() => setProfileMenuOpen(false)}><LayoutDashboard size={15} />Dashboard</a>
+              <button type="button" role="menuitem" onClick={signOutFromLanding} disabled={signingOut}><LogOut size={15} />{signingOut ? "Signing out…" : "Sign out"}</button>
+              {signOutMessage && <span className="nav-account-error" role="status">{signOutMessage}</span>}
+            </div>}
+          </div>
+        ) : <a className="nav-signin-button" href="/login"><span>Sign in</span></a>}
+        <button className="mobile-menu-button" aria-label="Open navigation" aria-expanded={mobileOpen} onClick={() => setMobileOpen((open) => !open)}>{mobileOpen ? <X size={19} /> : <List size={19} />}</button>
+      </div>
       {mobileOpen && <nav className="mobile-nav" aria-label="Mobile navigation">{menu}</nav>}
     </header>
     <main id="top" className={conversation ? "landing-conversation" : "landing-home"}>
@@ -435,7 +450,14 @@ export default function LandingPage() {
             <p className="note">Findings are potential gaps based on your sources, not guaranteed facts.</p>
           </div>
         </section>
-        <section className="how" id="how-it-works" aria-labelledby="how-title"><h2 id="how-title">How it works</h2><div className="how-step"><span>1</span><p><strong>Ask.</strong> Type the question you need answered and add the pages or files you&apos;re relying on.</p></div><div className="how-step"><span>2</span><p><strong>Compare.</strong> Pramana works out what a complete answer needs, then checks each source against it, quote by quote.</p></div><div className="how-step"><span>3</span><p><strong>Verify.</strong> See what&apos;s missing, where sources disagree, what&apos;s outdated, and what to confirm next.</p></div></section>
+        <section className="how" id="how-it-works" aria-labelledby="how-title">
+          <div className="how-heading"><span className="how-eyebrow">A clearer way to check</span><h2 id="how-title">From question to confidence.</h2><p>Pramana traces every answer back to the sources you provide.</p></div>
+          <div className="how-grid">
+            <article className="how-card how-card-ask"><div className="how-card-top"><span className="how-number">01</span><span className="how-tag">START HERE</span></div><div className="how-visual ask-visual" aria-hidden="true"><div className="ask-window"><span className="ask-dot"/><span className="ask-dot"/><span className="ask-dot"/><div className="ask-line">What should I verify?</div><div className="ask-source"><span>↗</span> official.gov.in</div><div className="ask-send">↑</div></div></div><h3>Ask with your sources</h3><p>Write what you need to know. Add official pages, documents, or copied text.</p></article>
+            <article className="how-card how-card-compare"><div className="how-card-top"><span className="how-number">02</span><span className="how-tag">CHECK THE EVIDENCE</span></div><div className="how-visual compare-visual" aria-hidden="true"><div className="compare-sheet"><div className="compare-head"><span>REQUIRED</span><span>YOUR SOURCES</span></div><div className="compare-row"><i/>Eligibility <b>✓</b></div><div className="compare-row"><i/>Deadline <b>✓</b></div><div className="compare-row compare-missing"><i/>Renewal rules <b>?</b></div><div className="compare-scan"/></div></div><h3>Compare, quote by quote</h3><p>Pramana maps what a complete answer needs, then checks each source for supporting evidence.</p></article>
+            <article className="how-card how-card-verify"><div className="how-card-top"><span className="how-number">03</span><span className="how-tag">KNOW WHAT’S NEXT</span></div><div className="how-visual verify-visual" aria-hidden="true"><div className="verify-report"><div className="verify-ring"><span>82<small>%</small></span></div><div className="verify-details"><b>Coverage</b><span><i/> Supported</span><span><i/> Missing detail</span><span><i/> Check the date</span></div><div className="verify-foot">NEXT CHECK <b>Renewal conditions ↗</b></div></div></div><h3>See gaps and next steps</h3><p>Review what is supported, what conflicts or may be out of date, and what to confirm next.</p></article>
+          </div>
+        </section>
       </> : <>
         <AnalysisConversation question={submittedQuestion} sources={submittedSources} result={analysisResult} loading={analysisLoading} statusLine={analysisStatus} error={analysisError} isSample={isSample} canRetry={retryAvailable} onRetry={retryLastAnalysis} onAddSource={openAddSource} onSuggestSources={showSourceSuggestionMessage} />
         <div className="landing-chat-dock" ref={composerDockRef}>
