@@ -1,4 +1,6 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pramana
+
+Pramana compares user-provided sources, checks quoted claims against their source text, and reports gaps, outdated information, and disagreements.
 
 ## Getting Started
 
@@ -14,11 +16,29 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Set `GROQ_API_KEY` in `.env.local` for live analysis. Copy `.env.example` as a reference; keep API secrets server-side.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Analysis API
+
+`POST /api/analyze` accepts JSON and responds with server-sent events. Every event is JSON in a `data:` line. Progress events use `type: "step"`; per-source results use `type: "source"`; the final `type: "result"` contains a complete `AnalysisResult`.
+
+```json
+{
+  "question": "What are the eligibility requirements?",
+  "sources": [
+    { "id": "official", "kind": "url", "url": "https://public.example.org/notice" },
+    { "id": "notes", "kind": "text", "title": "My notes", "text": "Paste source text here." }
+  ]
+}
+```
+
+PDFs can be sent as a public PDF URL with `kind: "pdf"`, or as uploaded base64 data in `fileBase64` with an optional `filename`. Limits are 8 sources, 30,000 extracted characters per source, 2 MB per fetched source or uploaded PDF, and 100 pages per PDF. Link fetching rejects private and reserved IPs, revalidates each redirect, follows robots.txt, and accepts HTML, plain text, or PDF.
+
+`GET /api/sample` returns the precomputed fictional grant analysis without calling Groq. Regenerate it after changing the fixtures with `npm run sample:write`. All sample documents are invented and are not real application guidance.
+
+Run Stage 3 deterministic checks with `npm run test:stage3`.
 
 ## Learn More
 
