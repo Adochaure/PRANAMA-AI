@@ -1,3 +1,5 @@
+begin;
+
 create table if not exists public.analyses (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users (id) on delete cascade,
@@ -30,23 +32,28 @@ create index if not exists analysis_sources_analysis_idx
 alter table public.analyses enable row level security;
 alter table public.analysis_sources enable row level security;
 
+drop policy if exists "Users can read their own analyses" on public.analyses;
 create policy "Users can read their own analyses"
   on public.analyses for select to authenticated
   using ((select auth.uid()) = user_id);
 
+drop policy if exists "Users can create their own analyses" on public.analyses;
 create policy "Users can create their own analyses"
   on public.analyses for insert to authenticated
   with check ((select auth.uid()) = user_id);
 
+drop policy if exists "Users can update their own analyses" on public.analyses;
 create policy "Users can update their own analyses"
   on public.analyses for update to authenticated
   using ((select auth.uid()) = user_id)
   with check ((select auth.uid()) = user_id);
 
+drop policy if exists "Users can delete their own analyses" on public.analyses;
 create policy "Users can delete their own analyses"
   on public.analyses for delete to authenticated
   using ((select auth.uid()) = user_id);
 
+drop policy if exists "Users can read their own analysis sources" on public.analysis_sources;
 create policy "Users can read their own analysis sources"
   on public.analysis_sources for select to authenticated
   using (
@@ -58,6 +65,7 @@ create policy "Users can read their own analysis sources"
     )
   );
 
+drop policy if exists "Users can create their own analysis sources" on public.analysis_sources;
 create policy "Users can create their own analysis sources"
   on public.analysis_sources for insert to authenticated
   with check (
@@ -69,6 +77,7 @@ create policy "Users can create their own analysis sources"
     )
   );
 
+drop policy if exists "Users can update their own analysis sources" on public.analysis_sources;
 create policy "Users can update their own analysis sources"
   on public.analysis_sources for update to authenticated
   using (
@@ -88,6 +97,7 @@ create policy "Users can update their own analysis sources"
     )
   );
 
+drop policy if exists "Users can delete their own analysis sources" on public.analysis_sources;
 create policy "Users can delete their own analysis sources"
   on public.analysis_sources for delete to authenticated
   using (
@@ -101,3 +111,5 @@ create policy "Users can delete their own analysis sources"
 
 grant select, insert, update, delete on public.analyses to authenticated;
 grant select, insert, update, delete on public.analysis_sources to authenticated;
+
+commit;

@@ -1,0 +1,773 @@
+{
+  "question": "What are the eligibility and application requirements for the Surya Scholars Grant?",
+  "generatedAt": "2026-11-01T08:51:34.661Z",
+  "aspects": [
+    {
+      "id": "academic_cycle",
+      "label": "Academic cycle",
+      "question": "Which academic cycle does this notice cover?",
+      "description": "The year or cycle the information applies to.",
+      "importance": 3,
+      "keywords": [
+        "academic cycle",
+        "2026-27",
+        "application year"
+      ]
+    },
+    {
+      "id": "eligibility_income",
+      "label": "Income eligibility",
+      "question": "What household income qualifies?",
+      "description": "The maximum household income for applicants.",
+      "importance": 5,
+      "keywords": [
+        "household income",
+        "income limit",
+        "annual income"
+      ]
+    },
+    {
+      "id": "application_deadline",
+      "label": "Application deadline",
+      "question": "When is the application due?",
+      "description": "The last date to submit a new application.",
+      "importance": 5,
+      "keywords": [
+        "deadline",
+        "last date",
+        "due date"
+      ]
+    },
+    {
+      "id": "supporting_documents",
+      "label": "Supporting documents",
+      "question": "Which income document must applicants submit?",
+      "description": "The required proof of income.",
+      "importance": 5,
+      "keywords": [
+        "income certificate",
+        "income-tax return",
+        "supporting document"
+      ]
+    },
+    {
+      "id": "application_channel",
+      "label": "Application route",
+      "question": "Where should an application be submitted?",
+      "description": "The official application route.",
+      "importance": 4,
+      "keywords": [
+        "apply",
+        "application portal",
+        "submit online"
+      ]
+    },
+    {
+      "id": "application_fee",
+      "label": "Application fee",
+      "question": "Is there an application fee?",
+      "description": "Any fee required to apply.",
+      "importance": 3,
+      "keywords": [
+        "application fee",
+        "fee",
+        "payment"
+      ]
+    },
+    {
+      "id": "award_amount",
+      "label": "Award amount",
+      "question": "How much financial support can the award provide?",
+      "description": "The maximum scholarship amount.",
+      "importance": 3,
+      "keywords": [
+        "award amount",
+        "scholarship amount",
+        "financial support"
+      ]
+    },
+    {
+      "id": "renewal_conditions",
+      "label": "Renewal conditions",
+      "question": "What must a student do to renew the award?",
+      "description": "Academic and document conditions for renewal.",
+      "importance": 4,
+      "keywords": [
+        "renewal",
+        "renew",
+        "marks",
+        "fresh income certificate"
+      ]
+    },
+    {
+      "id": "support_contact",
+      "label": "Support contact",
+      "question": "How can applicants contact the scholarship team?",
+      "description": "An official way to get help.",
+      "importance": 2,
+      "keywords": [
+        "contact",
+        "help",
+        "scholarship cell"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "official",
+      "kind": "url",
+      "url": "https://scholarships.example.gov.in/surya/notice-2026",
+      "title": "Surya Scholars Grant — Official Notice",
+      "domain": "scholarships.example.gov.in",
+      "isOfficial": true,
+      "status": "ok",
+      "error": null,
+      "text": "# Surya Scholars Grant — Official Notice\n\nPublished: 10 June 2026\nAcademic cycle: 2026-27\n\nApplicants must have annual household income below Rs 8 lakh.\n\nThe online application deadline is 15 December 2026.\n\nSubmit an income certificate issued by the Tehsildar with your application.\n\nApply through the State Student Support Portal.\n\nThere is no application fee.\n\nFor help, contact the scholarship cell by email.\n",
+      "hash": "94830959049abcf9d50614a7082f78c6f304cc293fb78cb9a81d7cb05876f254",
+      "dates": {
+        "published": "2026-06-10",
+        "modified": null,
+        "cycles": [
+          "2026-27"
+        ]
+      }
+    },
+    {
+      "id": "blog",
+      "kind": "url",
+      "url": "https://study-notes.example/blog/surya-grant",
+      "title": "How to apply for the Surya Scholars Grant",
+      "domain": "study-notes.example",
+      "isOfficial": false,
+      "status": "ok",
+      "error": null,
+      "text": "# How to apply for the Surya Scholars Grant\n\nPublished: 18 July 2026\nAcademic cycle: 2026-27\n\nApplicants should attach a copy of their latest income-tax return with the application.\n\nThe application deadline for the 2026-27 cycle is 15 December 2026.\n",
+      "hash": "fea5024a95b749b5c8bb0a1952f609005e813500b7943804c4ce449da4534241",
+      "dates": {
+        "published": "2026-07-18",
+        "modified": null,
+        "cycles": [
+          "2026-27"
+        ]
+      }
+    },
+    {
+      "id": "old-notice",
+      "kind": "url",
+      "url": "https://archive.example.gov.in/surya/notice-2023",
+      "title": "Surya Scholars Grant — Archived Notice",
+      "domain": "archive.example.gov.in",
+      "isOfficial": true,
+      "status": "ok",
+      "error": null,
+      "text": "# Surya Scholars Grant — Archived Notice\n\nPublished: 02 May 2023\nAcademic cycle: 2023-24\n\nFor the 2023-24 academic cycle, applicants needed annual household income below Rs 6 lakh.\n\nThe application deadline for that cycle was 10 November 2023.\n",
+      "hash": "c39b9c0fc55ddaeac239bdcfdd3041d935d739710a0fc5105ffd583329115591",
+      "dates": {
+        "published": "2023-05-02",
+        "modified": null,
+        "cycles": [
+          "2023-24"
+        ]
+      }
+    },
+    {
+      "id": "aggregator",
+      "kind": "url",
+      "url": "https://grants.example/directory/surya",
+      "title": "Surya Scholars Grant summary",
+      "domain": "grants.example",
+      "isOfficial": false,
+      "status": "ok",
+      "error": null,
+      "text": "# Surya Scholars Grant summary\n\nListings describe eligibility as household income below Rs 8 lakh and an award of up to Rs 50,000.\n\nThe award is renewable for eligible students.\n\nThis summary has no publication date or academic cycle.\n",
+      "hash": "996e9f3901dc4e3bd4d60b118cf769e6c571a8e3c99d7a6a3eeb5ad234e99fac",
+      "dates": {
+        "published": null,
+        "modified": null,
+        "cycles": []
+      }
+    }
+  ],
+  "claims": [
+    {
+      "id": "claim-official-1",
+      "sourceId": "official",
+      "aspectId": "academic_cycle",
+      "statement": "The notice applies to the 2026-27 academic cycle.",
+      "value": "2026-27",
+      "quote": "Academic cycle: 2026-27",
+      "quoteStart": 66,
+      "quoteEnd": 89,
+      "asOf": "2026-27"
+    },
+    {
+      "id": "claim-official-2",
+      "sourceId": "official",
+      "aspectId": "eligibility_income",
+      "statement": "Applicants need household income below Rs 8 lakh.",
+      "value": "Below Rs 8 lakh",
+      "quote": "Applicants must have annual household income below Rs 8 lakh.",
+      "quoteStart": 91,
+      "quoteEnd": 152,
+      "asOf": "2026-27"
+    },
+    {
+      "id": "claim-official-3",
+      "sourceId": "official",
+      "aspectId": "application_deadline",
+      "statement": "Applications are due on 15 December 2026.",
+      "value": "15 December 2026",
+      "quote": "The online application deadline is 15 December 2026.",
+      "quoteStart": 154,
+      "quoteEnd": 206,
+      "asOf": "2026-27"
+    },
+    {
+      "id": "claim-official-4",
+      "sourceId": "official",
+      "aspectId": "supporting_documents",
+      "statement": "Applicants must submit a Tehsildar-issued income certificate.",
+      "value": "Income certificate issued by the Tehsildar",
+      "quote": "Submit an income certificate issued by the Tehsildar with your application.",
+      "quoteStart": 208,
+      "quoteEnd": 283,
+      "asOf": "2026-27"
+    },
+    {
+      "id": "claim-official-5",
+      "sourceId": "official",
+      "aspectId": "application_channel",
+      "statement": "Applications go through the State Student Support Portal.",
+      "value": "State Student Support Portal",
+      "quote": "Apply through the State Student Support Portal.",
+      "quoteStart": 285,
+      "quoteEnd": 332,
+      "asOf": "2026-27"
+    },
+    {
+      "id": "claim-official-6",
+      "sourceId": "official",
+      "aspectId": "application_fee",
+      "statement": "There is no application fee.",
+      "value": "No application fee",
+      "quote": "There is no application fee.",
+      "quoteStart": 334,
+      "quoteEnd": 362,
+      "asOf": "2026-27"
+    },
+    {
+      "id": "claim-official-7",
+      "sourceId": "official",
+      "aspectId": "support_contact",
+      "statement": "Applicants can email the scholarship cell for help.",
+      "value": "Email the scholarship cell",
+      "quote": "For help, contact the scholarship cell by email.",
+      "quoteStart": 364,
+      "quoteEnd": 412,
+      "asOf": "2026-27"
+    },
+    {
+      "id": "claim-blog-1",
+      "sourceId": "blog",
+      "aspectId": "academic_cycle",
+      "statement": "The post is about the 2026-27 cycle.",
+      "value": "2026-27",
+      "quote": "Academic cycle: 2026-27",
+      "quoteStart": 69,
+      "quoteEnd": 92,
+      "asOf": "2026-27"
+    },
+    {
+      "id": "claim-blog-2",
+      "sourceId": "blog",
+      "aspectId": "application_deadline",
+      "statement": "The deadline is 15 December 2026.",
+      "value": "15 December 2026",
+      "quote": "The application deadline for the 2026-27 cycle is 15 December 2026.",
+      "quoteStart": 183,
+      "quoteEnd": 250,
+      "asOf": "2026-27"
+    },
+    {
+      "id": "claim-blog-3",
+      "sourceId": "blog",
+      "aspectId": "supporting_documents",
+      "statement": "The post says to attach the latest income-tax return.",
+      "value": "Latest income-tax return",
+      "quote": "Applicants should attach a copy of their latest income-tax return with the application.",
+      "quoteStart": 94,
+      "quoteEnd": 181,
+      "asOf": "2026-27"
+    },
+    {
+      "id": "claim-old-notice-1",
+      "sourceId": "old-notice",
+      "aspectId": "academic_cycle",
+      "statement": "The archived notice applies to 2023-24.",
+      "value": "2023-24",
+      "quote": "Academic cycle: 2023-24",
+      "quoteStart": 65,
+      "quoteEnd": 88,
+      "asOf": "2023-24"
+    },
+    {
+      "id": "claim-old-notice-2",
+      "sourceId": "old-notice",
+      "aspectId": "eligibility_income",
+      "statement": "The old cycle had a Rs 6 lakh income limit.",
+      "value": "Below Rs 6 lakh",
+      "quote": "For the 2023-24 academic cycle, applicants needed annual household income below Rs 6 lakh.",
+      "quoteStart": 90,
+      "quoteEnd": 180,
+      "asOf": "2023-24"
+    },
+    {
+      "id": "claim-old-notice-3",
+      "sourceId": "old-notice",
+      "aspectId": "application_deadline",
+      "statement": "The old cycle deadline was 10 November 2023.",
+      "value": "10 November 2023",
+      "quote": "The application deadline for that cycle was 10 November 2023.",
+      "quoteStart": 182,
+      "quoteEnd": 243,
+      "asOf": "2023-24"
+    },
+    {
+      "id": "claim-aggregator-1",
+      "sourceId": "aggregator",
+      "aspectId": "eligibility_income",
+      "statement": "The listing says the household income should be below Rs 8 lakh.",
+      "value": "Below Rs 8 lakh",
+      "quote": "Listings describe eligibility as household income below Rs 8 lakh and an award of up to Rs 50,000.",
+      "quoteStart": 32,
+      "quoteEnd": 130,
+      "asOf": null
+    },
+    {
+      "id": "claim-aggregator-2",
+      "sourceId": "aggregator",
+      "aspectId": "award_amount",
+      "statement": "The listing gives a maximum award of Rs 50,000.",
+      "value": "Up to Rs 50,000",
+      "quote": "Listings describe eligibility as household income below Rs 8 lakh and an award of up to Rs 50,000.",
+      "quoteStart": 32,
+      "quoteEnd": 130,
+      "asOf": null
+    },
+    {
+      "id": "claim-aggregator-3",
+      "sourceId": "aggregator",
+      "aspectId": "renewal_conditions",
+      "statement": "The summary says the award can be renewed for eligible students.",
+      "value": "Renewable for eligible students",
+      "quote": "The award is renewable for eligible students.",
+      "quoteStart": 132,
+      "quoteEnd": 177,
+      "asOf": null
+    }
+  ],
+  "cells": [
+    {
+      "aspectId": "academic_cycle",
+      "sourceId": "official",
+      "status": "covered",
+      "claimIds": [
+        "claim-official-1"
+      ],
+      "hint": null
+    },
+    {
+      "aspectId": "academic_cycle",
+      "sourceId": "blog",
+      "status": "covered",
+      "claimIds": [
+        "claim-blog-1"
+      ],
+      "hint": null
+    },
+    {
+      "aspectId": "academic_cycle",
+      "sourceId": "old-notice",
+      "status": "covered",
+      "claimIds": [
+        "claim-old-notice-1"
+      ],
+      "hint": null
+    },
+    {
+      "aspectId": "academic_cycle",
+      "sourceId": "aggregator",
+      "status": "not_found",
+      "claimIds": [],
+      "hint": null
+    },
+    {
+      "aspectId": "eligibility_income",
+      "sourceId": "official",
+      "status": "covered",
+      "claimIds": [
+        "claim-official-2"
+      ],
+      "hint": null
+    },
+    {
+      "aspectId": "eligibility_income",
+      "sourceId": "blog",
+      "status": "not_found",
+      "claimIds": [],
+      "hint": null
+    },
+    {
+      "aspectId": "eligibility_income",
+      "sourceId": "old-notice",
+      "status": "covered",
+      "claimIds": [
+        "claim-old-notice-2"
+      ],
+      "hint": null
+    },
+    {
+      "aspectId": "eligibility_income",
+      "sourceId": "aggregator",
+      "status": "covered",
+      "claimIds": [
+        "claim-aggregator-1"
+      ],
+      "hint": null
+    },
+    {
+      "aspectId": "application_deadline",
+      "sourceId": "official",
+      "status": "covered",
+      "claimIds": [
+        "claim-official-3"
+      ],
+      "hint": null
+    },
+    {
+      "aspectId": "application_deadline",
+      "sourceId": "blog",
+      "status": "covered",
+      "claimIds": [
+        "claim-blog-2"
+      ],
+      "hint": null
+    },
+    {
+      "aspectId": "application_deadline",
+      "sourceId": "old-notice",
+      "status": "covered",
+      "claimIds": [
+        "claim-old-notice-3"
+      ],
+      "hint": null
+    },
+    {
+      "aspectId": "application_deadline",
+      "sourceId": "aggregator",
+      "status": "not_found",
+      "claimIds": [],
+      "hint": null
+    },
+    {
+      "aspectId": "supporting_documents",
+      "sourceId": "official",
+      "status": "covered",
+      "claimIds": [
+        "claim-official-4"
+      ],
+      "hint": null
+    },
+    {
+      "aspectId": "supporting_documents",
+      "sourceId": "blog",
+      "status": "covered",
+      "claimIds": [
+        "claim-blog-3"
+      ],
+      "hint": null
+    },
+    {
+      "aspectId": "supporting_documents",
+      "sourceId": "old-notice",
+      "status": "not_found",
+      "claimIds": [],
+      "hint": null
+    },
+    {
+      "aspectId": "supporting_documents",
+      "sourceId": "aggregator",
+      "status": "not_found",
+      "claimIds": [],
+      "hint": null
+    },
+    {
+      "aspectId": "application_channel",
+      "sourceId": "official",
+      "status": "covered",
+      "claimIds": [
+        "claim-official-5"
+      ],
+      "hint": null
+    },
+    {
+      "aspectId": "application_channel",
+      "sourceId": "blog",
+      "status": "not_found",
+      "claimIds": [],
+      "hint": null
+    },
+    {
+      "aspectId": "application_channel",
+      "sourceId": "old-notice",
+      "status": "not_found",
+      "claimIds": [],
+      "hint": null
+    },
+    {
+      "aspectId": "application_channel",
+      "sourceId": "aggregator",
+      "status": "not_found",
+      "claimIds": [],
+      "hint": null
+    },
+    {
+      "aspectId": "application_fee",
+      "sourceId": "official",
+      "status": "covered",
+      "claimIds": [
+        "claim-official-6"
+      ],
+      "hint": null
+    },
+    {
+      "aspectId": "application_fee",
+      "sourceId": "blog",
+      "status": "not_found",
+      "claimIds": [],
+      "hint": null
+    },
+    {
+      "aspectId": "application_fee",
+      "sourceId": "old-notice",
+      "status": "not_found",
+      "claimIds": [],
+      "hint": null
+    },
+    {
+      "aspectId": "application_fee",
+      "sourceId": "aggregator",
+      "status": "not_found",
+      "claimIds": [],
+      "hint": null
+    },
+    {
+      "aspectId": "award_amount",
+      "sourceId": "official",
+      "status": "not_found",
+      "claimIds": [],
+      "hint": null
+    },
+    {
+      "aspectId": "award_amount",
+      "sourceId": "blog",
+      "status": "not_found",
+      "claimIds": [],
+      "hint": null
+    },
+    {
+      "aspectId": "award_amount",
+      "sourceId": "old-notice",
+      "status": "not_found",
+      "claimIds": [],
+      "hint": null
+    },
+    {
+      "aspectId": "award_amount",
+      "sourceId": "aggregator",
+      "status": "covered",
+      "claimIds": [
+        "claim-aggregator-2"
+      ],
+      "hint": null
+    },
+    {
+      "aspectId": "renewal_conditions",
+      "sourceId": "official",
+      "status": "not_found",
+      "claimIds": [],
+      "hint": null
+    },
+    {
+      "aspectId": "renewal_conditions",
+      "sourceId": "blog",
+      "status": "not_found",
+      "claimIds": [],
+      "hint": null
+    },
+    {
+      "aspectId": "renewal_conditions",
+      "sourceId": "old-notice",
+      "status": "not_found",
+      "claimIds": [],
+      "hint": null
+    },
+    {
+      "aspectId": "renewal_conditions",
+      "sourceId": "aggregator",
+      "status": "possibly_covered",
+      "claimIds": [
+        "claim-aggregator-3"
+      ],
+      "hint": "The award is renewable for eligible students."
+    },
+    {
+      "aspectId": "support_contact",
+      "sourceId": "official",
+      "status": "covered",
+      "claimIds": [
+        "claim-official-7"
+      ],
+      "hint": null
+    },
+    {
+      "aspectId": "support_contact",
+      "sourceId": "blog",
+      "status": "not_found",
+      "claimIds": [],
+      "hint": null
+    },
+    {
+      "aspectId": "support_contact",
+      "sourceId": "old-notice",
+      "status": "not_found",
+      "claimIds": [],
+      "hint": null
+    },
+    {
+      "aspectId": "support_contact",
+      "sourceId": "aggregator",
+      "status": "not_found",
+      "claimIds": [],
+      "hint": null
+    }
+  ],
+  "findings": [
+    {
+      "id": "gap-renewal_conditions",
+      "type": "gap",
+      "aspectId": "renewal_conditions",
+      "title": "Renewal conditions is not fully verified",
+      "explanation": "A source may mention this, but it does not give enough detail to verify the requirement. Check Surya Scholars Grant summary.",
+      "severity": "high",
+      "evidence": [
+        {
+          "claimId": "claim-aggregator-3",
+          "sourceId": "aggregator",
+          "quote": "The award is renewable for eligible students."
+        }
+      ],
+      "label": "uncertain"
+    },
+    {
+      "id": "outdated-old-notice",
+      "type": "outdated",
+      "aspectId": "academic_cycle",
+      "title": "Surya Scholars Grant — Archived Notice covers an older cycle",
+      "explanation": "This source is for 2023-24, while the newest supplied cycle is 2026-27. Do not apply its older requirements to the current cycle.",
+      "severity": "medium",
+      "evidence": [
+        {
+          "claimId": "claim-old-notice-1",
+          "sourceId": "old-notice",
+          "quote": "Academic cycle: 2023-24"
+        },
+        {
+          "claimId": "claim-old-notice-2",
+          "sourceId": "old-notice",
+          "quote": "For the 2023-24 academic cycle, applicants needed annual household income below Rs 6 lakh."
+        },
+        {
+          "claimId": "claim-old-notice-3",
+          "sourceId": "old-notice",
+          "quote": "The application deadline for that cycle was 10 November 2023."
+        }
+      ],
+      "label": "uncertain"
+    },
+    {
+      "id": "conflict-supporting_documents",
+      "type": "conflict",
+      "aspectId": "supporting_documents",
+      "title": "Sources disagree about supporting documents",
+      "explanation": "The current-cycle blog asks for an income-tax return, while the official notice asks for a Tehsildar-issued income certificate.",
+      "severity": "high",
+      "evidence": [
+        {
+          "claimId": "claim-official-4",
+          "sourceId": "official",
+          "quote": "Submit an income certificate issued by the Tehsildar with your application."
+        },
+        {
+          "claimId": "claim-blog-3",
+          "sourceId": "blog",
+          "quote": "Applicants should attach a copy of their latest income-tax return with the application."
+        }
+      ],
+      "label": "sourced"
+    }
+  ],
+  "checklist": [
+    {
+      "finding_ids": [
+        "gap-renewal_conditions"
+      ],
+      "action": "Confirm the renewal criteria in the current official notice",
+      "reason": "A source may mention this, but it does not give enough detail to verify the requirement. Check Surya Scholars Grant summary.",
+      "where_to_verify": "Official Surya Scholars Grant portal or notice",
+      "impact": 5,
+      "uncertainty": 4,
+      "id": "check-1",
+      "rank": 1,
+      "label": "ai_suggested"
+    },
+    {
+      "finding_ids": [
+        "outdated-old-notice"
+      ],
+      "action": "Use the current 2026-27 notice instead of the archived notice",
+      "reason": "This source is for 2023-24, while the newest supplied cycle is 2026-27. Do not apply its older requirements to the current cycle.",
+      "where_to_verify": "Official Surya Scholars Grant portal or notice",
+      "impact": 3,
+      "uncertainty": 4,
+      "id": "check-2",
+      "rank": 2,
+      "label": "ai_suggested"
+    },
+    {
+      "finding_ids": [
+        "conflict-supporting_documents"
+      ],
+      "action": "Confirm which income document is required on the official 2026-27 notice",
+      "reason": "The current-cycle blog asks for an income-tax return, while the official notice asks for a Tehsildar-issued income certificate.",
+      "where_to_verify": "Official Surya Scholars Grant portal or notice",
+      "impact": 5,
+      "uncertainty": 2,
+      "id": "check-3",
+      "rank": 3,
+      "label": "ai_suggested"
+    }
+  ],
+  "score": {
+    "completeness": 80,
+    "darkSpot": 20
+  },
+  "discardedClaims": 1,
+  "warnings": [
+    "Surya Scholars Grant — Archived Notice was published more than 12 months before this analysis.",
+    "Surya Scholars Grant — Archived Notice is from an older academic cycle.",
+    "Surya Scholars Grant summary has no publication date or academic cycle; treat it as uncertain.",
+    "The Rs 6 lakh limit is explicitly for 2023-24; the current official notice is for 2026-27.",
+    "The November 2023 date belongs to the archived 2023-24 cycle, not the current 2026-27 cycle."
+  ]
+}
