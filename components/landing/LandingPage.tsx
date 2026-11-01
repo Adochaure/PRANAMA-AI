@@ -385,18 +385,18 @@ export default function LandingPage() {
       <button type="button" onClick={() => { void runSample(); setMobileOpen(false); }}>Sample</button>
     </>}
     {profileLabel ? (
-      <div className="nav-account">
+      <div className="nav-account desktop-account">
         <button className="nav-profile-trigger" type="button" title={profileLabel} aria-label={`Account menu for ${profileLabel}`} aria-expanded={profileMenuOpen} onClick={() => { setProfileMenuOpen((open) => !open); setSignOutMessage(""); }}>
           <span className="nav-profile-avatar">{profileLabel.trim().charAt(0).toUpperCase() || "U"}</span><ChevronDown size={14} aria-hidden="true" />
         </button>
         {profileMenuOpen && <div className="nav-account-menu" role="menu">
           <span className="nav-account-email" title={profileLabel}>{profileLabel}</span>
-          <a href="/dashboard" role="menuitem" onClick={() => { setProfileMenuOpen(false); setMobileOpen(false); }}><LayoutDashboard size={15} />Dashboard</a>
+          <a href="/dashboard" role="menuitem" onClick={() => setProfileMenuOpen(false)}><LayoutDashboard size={15} />Dashboard</a>
           <button type="button" role="menuitem" onClick={signOutFromLanding} disabled={signingOut}><LogOut size={15} />{signingOut ? "Signing out…" : "Sign out"}</button>
           {signOutMessage && <span className="nav-account-error" role="status">{signOutMessage}</span>}
         </div>}
       </div>
-    ) : <a className="nav-signin-button" href="/login" onClick={() => setMobileOpen(false)}><span>Sign in</span></a>}
+    ) : <a className="nav-signin-button desktop-signin" href="/login" onClick={() => setMobileOpen(false)}><span>Sign in</span></a>}
     <a className="github-link" href="https://github.com/Adochaure/PRANAMA-AI" target="_blank" rel="noreferrer" onClick={() => setMobileOpen(false)}><svg aria-hidden="true" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M8 .7a7.3 7.3 0 0 0-2.3 14.2c.36.07.5-.16.5-.35v-1.27c-2.03.44-2.46-.86-2.46-.86-.33-.84-.81-1.06-.81-1.06-.66-.45.05-.44.05-.44.73.05 1.11.75 1.11.75.65 1.1 1.7.78 2.12.6.06-.47.25-.78.46-.96-1.62-.18-3.33-.81-3.33-3.6 0-.8.29-1.45.75-1.96-.08-.18-.33-.93.07-1.94 0 0 .61-.2 2 .75a6.9 6.9 0 0 1 3.64 0c1.39-.94 2-.75 2-.75.4 1.01.15 1.76.07 1.94.47.51.75 1.16.75 1.96 0 2.8-1.71 3.42-3.34 3.6.26.22.49.66.49 1.33v1.96c0 .2.13.42.5.35A7.3 7.3 0 0 0 8 .7Z" /></svg><span>GitHub</span></a>
   </>;
 
