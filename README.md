@@ -139,4 +139,6 @@ Paste real, live URLs into the composer:
 Built for the **Shinchan Online Hackathon 2026**.
 
 - **Repository**: [github.com/Adochaure/PRANAMA-AI](https://github.com/Adochaure/PRANAMA-AI)
-- **Live Deployment**: [pranama-ai.vercel.app](https://pranama-ai.vercel.app)
+
+- **Live Deployment**: [pranama-ai.vercel.app](https://pramana-six.vercel.app)
+
