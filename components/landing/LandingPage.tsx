@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type KeyboardEvent } from "react";
 import { ArrowUp, ChevronDown, ClipboardPaste, FileText, LayoutDashboard, Link2, List, LogOut, Plus, Search, X } from "lucide-react";
 import { AnalysisConversation } from "@/components/conversation/AnalysisConversation";
-import { AnalysisResult as AnalysisResultSchema, StreamEvent as StreamEventSchema, type AnalysisResult, type StreamEvent } from "@/lib/schemas";
+import { StreamEvent as StreamEventSchema, type AnalysisResult, type StreamEvent } from "@/lib/schemas";
 import { createClient } from "@/lib/supabase/client";
 
 type LocalSource = { id: string; kind: "url" | "file" | "text"; name: string; url?: string; text?: string; file?: File };
@@ -13,12 +13,6 @@ const MAX_SOURCES = 8;
 const MAX_FILE_BYTES = 1_800_000;
 const ACCEPTED = ".pdf,.txt,.md,.html";
 const DEMO_QUESTION = "What are the eligibility and application requirements for the Surya Scholars Grant?";
-const SAMPLE_SOURCES = [
-  { id: "sample-official", kind: "url" as const, name: "Surya Scholars Grant — Official Notice" },
-  { id: "sample-blog", kind: "url" as const, name: "How to apply for the Surya Scholars Grant" },
-  { id: "sample-old", kind: "url" as const, name: "Surya Scholars Grant — Archived Notice" },
-  { id: "sample-aggregator", kind: "url" as const, name: "Surya Scholars Grant summary" },
-];
 
 function sourceName(url: string) {
   try { return new URL(url).hostname.replace(/^www\./, ""); }
@@ -251,46 +245,63 @@ export default function LandingPage() {
   }
 
   async function runSample() {
-    if (analysisLoading) return;
-    const controller = new AbortController();
-    abortRef.current?.abort();
-    abortRef.current = controller;
-    setConversation(true);
-    setSubmittedQuestion(DEMO_QUESTION);
-    setSubmittedSources(SAMPLE_SOURCES);
-    setAnalysisResult(null);
-    setAnalysisError("");
-    setAnalysisStatus("Loading the prepared sample analysis");
-    setAnalysisLoading(true);
-    setIsSample(true);
-    retryInputRef.current = null;
-    setRetryAvailable(false);
-    setQuestion("");
-    setSources([]);
-    setStatus("");
+    setStatus("Opening sample scholarship analysis in workspace...");
     try {
-      const response = await fetch("/api/sample", { signal: controller.signal });
-      if (!response.ok) throw new Error("The sample analysis could not be loaded.");
-      const result = AnalysisResultSchema.parse(await response.json());
-      setAnalysisResult(result);
-      setSubmittedQuestion(result.question);
-      setSubmittedSources(result.sources.map((source) => ({ id: source.id, kind: source.kind === "text" ? "text" : source.kind === "url" ? "url" : "file", name: source.title })));
-      setAnalysisStatus("Sample analysis ready");
-    } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") return;
-      setAnalysisError(error instanceof Error ? error.message : "The sample analysis could not be loaded.");
-    } finally {
-      if (!controller.signal.aborted) setAnalysisLoading(false);
+      const pendingData = {
+        question: DEMO_QUESTION,
+        sources: [
+          { id: "official", kind: "url", title: "Surya Scholars Grant — Official Notice", url: "https://scholarships.example.gov.in/surya/notice-2026" },
+          { id: "blog", kind: "url", title: "How to apply for the Surya Scholars Grant", url: "https://study-notes.example/blog/surya-grant" },
+          { id: "old-notice", kind: "url", title: "Surya Scholars Grant — Archived Notice", url: "https://archive.example.gov.in/surya/notice-2023" },
+          { id: "aggregator", kind: "url", title: "Surya Scholars Grant summary", url: "https://grants.example/directory/surya" },
+        ],
+        isSample: true,
+      };
+      sessionStorage.setItem("pramana_pending_analysis", JSON.stringify(pendingData));
+    } catch {}
+
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      window.location.assign("/dashboard");
+    } else {
+      window.location.assign("/login?next=/dashboard");
     }
   }
 
-  function submit(event?: FormEvent) {
+  async function submit(event?: FormEvent) {
     event?.preventDefault();
     const prompt = question.trim();
-    if (prompt.length < 5) { setStatus("Add a question with at least 5 characters."); textareaRef.current?.focus(); return; }
-    if (!sources.length) { setStatus("Add at least one source before starting the analysis."); return; }
-    if (analysisLoading) return;
-    void runLiveAnalysis(prompt, sources);
+    if (prompt.length < 5) {
+      setStatus("Add a question with at least 5 characters.");
+      textareaRef.current?.focus();
+      return;
+    }
+    if (!sources.length) {
+      setStatus("Add at least one source before starting the analysis.");
+      return;
+    }
+
+    setStatus("Preparing your research...");
+    try {
+      const requestSources = await makeRequestSources(sources);
+      const pendingData = {
+        question: prompt,
+        sources: requestSources,
+        isSample: false,
+      };
+      sessionStorage.setItem("pramana_pending_analysis", JSON.stringify(pendingData));
+
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        window.location.assign("/dashboard");
+      } else {
+        window.location.assign("/login?next=/dashboard");
+      }
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Could not prepare sources.");
+    }
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
@@ -400,7 +411,9 @@ export default function LandingPage() {
       {!conversation ? <>
         <section className="hero" aria-labelledby="hero-title">
           <span className="hero-pillar hero-pillar-left" aria-hidden="true" /><span className="hero-pillar hero-pillar-right" aria-hidden="true" /><span className="hero-pillar hero-pillar-center" aria-hidden="true" />
-          <div className="hero-wordmark" aria-hidden="true">प्रMANA</div>
+          <div className="hero-phone-horse" aria-hidden="true">
+            <Image src="/horse.png" alt="" width={140} height={155} priority />
+          </div>
           <h1 id="hero-title">What do you want to be <span className="hero-title-accent">sure about?</span></h1>
           <p className="subtitle">Add your sources and Pramana shows what&apos;s missing, what conflicts, and what&apos;s outdated.</p>
           <div className="composer-wrap">
