@@ -115,12 +115,12 @@ export default function CenterPanel({
   const fileRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const gaps = result?.findings.filter((f) => f.type === "gap") ?? [];
-  const conflicts = result?.findings.filter((f) => f.type === "conflict") ?? [];
-  const outdated = result?.findings.filter((f) => f.type === "outdated") ?? [];
-  const aspectById = new Map(result?.aspects.map((a) => [a.id, a]) ?? []);
-  const sourceById = new Map(result?.sources.map((s) => [s.id, s]) ?? []);
-  const claimById = new Map(result?.claims.map((c) => [c.id, c]) ?? []);
+  const gaps = (result?.findings ?? []).filter((f) => f.type === "gap");
+  const conflicts = (result?.findings ?? []).filter((f) => f.type === "conflict");
+  const outdated = (result?.findings ?? []).filter((f) => f.type === "outdated");
+  const aspectById = new Map((result?.aspects ?? []).map((a) => [a.id, a]));
+  const sourceById = new Map((result?.sources ?? []).map((s) => [s.id, s]));
+  const claimById = new Map((result?.claims ?? []).map((c) => [c.id, c]));
 
   const hasRenewalGap = gaps.some((g) => g.aspectId === "renewal_conditions");
 
@@ -290,7 +290,7 @@ export default function CenterPanel({
   }
 
   async function copyChecklist() {
-    if (!result?.checklist.length) return;
+    if (!result?.checklist?.length) return;
     const content = result.checklist
       .map((item) => `${item.rank}. ${item.action}\n   ${item.reason}\n   Check: ${item.where_to_verify}`)
       .join("\n\n");
@@ -430,12 +430,12 @@ export default function CenterPanel({
                         <strong>{aspectById.get(f.aspectId)?.label || f.title}</strong>
                         <small>{f.explanation}</small>
                       </span>
-                      {f.evidence.length > 0 && (
+                      {(f.evidence?.length ?? 0) > 0 && (
                         <div className="finding-citations">
                           {f.evidence.map((ev) => {
                             const claim = claimById.get(ev.claimId);
                             if (!claim) return null;
-                            const idx = result.claims.findIndex((c) => c.id === claim.id) + 1;
+                            const idx = (result.claims ?? []).findIndex((c) => c.id === claim.id) + 1;
                             return (
                               <button
                                 key={ev.claimId}
@@ -464,11 +464,11 @@ export default function CenterPanel({
                     <h3>{aspectById.get(f.aspectId)?.label || f.title}</h3>
                     <p>{f.explanation}</p>
                     <div className="conflict-evidence-grid">
-                      {f.evidence.slice(0, 2).map((ev) => {
+                      {(f.evidence ?? []).slice(0, 2).map((ev) => {
                         const claim = claimById.get(ev.claimId);
                         const source = sourceById.get(ev.sourceId);
                         if (!claim || !source) return null;
-                        const idx = result.claims.findIndex((c) => c.id === claim.id) + 1;
+                        const idx = (result.claims ?? []).findIndex((c) => c.id === claim.id) + 1;
                         return (
                           <button
                             className="conflict-evidence"
@@ -508,7 +508,7 @@ export default function CenterPanel({
             )}
 
             {/* Verify Next Checklist */}
-            {result.checklist.length > 0 && (
+            {(result.checklist?.length ?? 0) > 0 && (
               <section className="analysis-section verify-section">
                 <div className="verify-heading">
                   <div>
@@ -566,9 +566,9 @@ export default function CenterPanel({
             {copyStatus && <p className="copy-feedback" role="status">{copyStatus}</p>}
 
             {/* Source Warnings */}
-            {result.warnings.length > 0 && (
+            {(result.warnings?.length ?? 0) > 0 && (
               <details className="analysis-warnings">
-                <summary>Source notes ({result.warnings.length})</summary>
+                <summary>Source notes ({result.warnings?.length ?? 0})</summary>
                 <ul>
                   {result.warnings.map((w) => (
                     <li key={w}>{w}</li>
