@@ -417,7 +417,7 @@ export default function LandingPage() {
               {signOutMessage && <span className="nav-account-error" role="status">{signOutMessage}</span>}
             </div>}
           </div>
-        ) : <a className="nav-signin-button" href="/login"><span>Sign in</span></a>}
+        ) : <a className="nav-signin-button mobile-signin" href="/login"><span>Sign in</span></a>}
         <button className="mobile-menu-button" aria-label="Open navigation" aria-expanded={mobileOpen} onClick={() => setMobileOpen((open) => !open)}>{mobileOpen ? <X size={19} /> : <List size={19} />}</button>
       </div>
       {mobileOpen && <nav className="mobile-nav" aria-label="Mobile navigation">{menu}</nav>}
